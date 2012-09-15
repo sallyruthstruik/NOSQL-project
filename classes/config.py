@@ -1,0 +1,3 @@
+DATABASE_NAME = 'test'
+COLLECTION_NAME_FILES = 'files'
+ROOT_SNAPSHOT_FOLDER = "/home/stas/"
