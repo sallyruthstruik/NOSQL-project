@@ -1,0 +1,7 @@
+#-*-coding:cp1251-*-
+DATABASE_NAME = 'test'
+COLLECTION_NAME_FILES = 'files'
+COLLECTION_NAME_VERSIONS = 'versions'
+COLLECTION_NAME_DIFFERENTS = 'differents'
+ROOT_SNAPSHOT_FOLDER = "C:\Users\Стас\Downloads"
+PRINTING_INTERVAL = 1000
