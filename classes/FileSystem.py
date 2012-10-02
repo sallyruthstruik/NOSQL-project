@@ -43,16 +43,20 @@ class File:
             "modification_time": None,
             "last_access_time": None,
             "path_len": None,
-            "versions":None
+            "versions":[]
                 }
         
     bad_items = (   #Поля, которые НЕ НАДО вносить в базу
             "_id",
+            "version"
                  )
     non_checked_items = (   #Поля, которые не надо сравнивать
-                "version",
-                
+            "versions",    
                          )
+    changing_items = (      #Поля, которые могут меняться в процессе жизни файла
+            "size",
+            "modification_time",
+                      )
 
     def __eq__(self, file):
         """Сравнивает левый файл с правым и выдает поля правого, которые не равны левому"""
@@ -84,7 +88,8 @@ class FileInDatabase(File):
 class FileInFS(File):
     def __init__(self, full_path, version_id):
         File.__init__(self)
-        self.versions = version_id
+        self.version = version_id
+        self.versions.append(self.version)
         if True:
             self._id = None
             if os.path.exists(full_path):
@@ -110,6 +115,7 @@ class FileInFS(File):
             database_file = FileInDatabase(self.absolute_path)
         except ValueError:
             toInsert = {}
+            toChange = {}
             for x in self.__dict__.keys():
                 if x in self.bad_items:
                     continue
@@ -126,10 +132,10 @@ class FileInFS(File):
                 collection_files.update(
                                 {"absolute_path": database_file.absolute_path},
                                 {"$push":
-                                    {"versions":self.versions},
+                                    {"versions": self.version},
                                  "$push":
                                     {"changes":
-                                        {"version": self.versions,
+                                        {"version": self.version,
                                          "changes": differents}
                                     }
                                  })
@@ -137,7 +143,7 @@ class FileInFS(File):
                 collection_files.update(
                                 {"absolute_path": database_file.absolute_path},
                                 {"$push":
-                                    {"versions":self.versions}
+                                    {"versions":self.version}
                                  })
 
 
@@ -166,12 +172,12 @@ class FolderInFS(FileInFS):
             new_path = os.path.join(self.absolute_path,item)
             if getType(new_path) == 'folder':
                 try:
-                    folders.append(FolderInFS(new_path, self.versions))
+                    folders.append(FolderInFS(new_path, self.version))
                 except ValueError:
                     pass
             else:
                 try:
-                    files.append(FileInFS(new_path, self.versions))
+                    files.append(FileInFS(new_path, self.version))
                 except ValueError:
                     pass
             Inc("count_files_cur")

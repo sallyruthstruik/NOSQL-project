@@ -20,7 +20,7 @@ if False:
     print str(time.time() - start)
     print Get('count_files_cur')
 
-if True:
+if False:
     collection_files.drop()
     collection_versions.drop()
 
