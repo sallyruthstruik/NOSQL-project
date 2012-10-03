@@ -23,7 +23,14 @@ if False:
 if False:
     collection_files.drop()
     collection_versions.drop()
-
+    
 Version().compareVersion()
+
+quit()
+path = "C:\Users\—Ú‡Ò\workspace\Acronis\NoSQL project\main.py"
+db = FileInDatabase(path)
+fs = FileInFS(path, '')
+for x in db.__dict__:
+    print x, db.__dict__[x]
 #print "–ü—Ä–∏–≤–µ—Ç!"
 #Folder(ROOT_SNAPSHOT_FOLDER).Run()

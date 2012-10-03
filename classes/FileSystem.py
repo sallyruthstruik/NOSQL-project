@@ -43,7 +43,8 @@ class File:
             "modification_time": None,
             "last_access_time": None,
             "path_len": None,
-            "versions":[]
+            "versions":[],
+            "changes":[]
                 }
         
     bad_items = (   #Поля, которые НЕ НАДО вносить в базу
@@ -51,12 +52,15 @@ class File:
             "version"
                  )
     non_checked_items = (   #Поля, которые не надо сравнивать
-            "versions",    
+            "versions",
+            "changes"    
                          )
-    changing_items = (      #Поля, которые могут меняться в процессе жизни файла
+    changing_items = (      #Поля, которые могут меняться в процессе жизни файла. Они будут хранится в массиве changes
             "size",
             "modification_time",
+            "last_access_time"
                       )
+    
 
     def __eq__(self, file):
         """Сравнивает левый файл с правым и выдает поля правого, которые не равны левому"""
@@ -74,6 +78,7 @@ class File:
 
 class FileInDatabase(File):
     def __init__(self, full_path):
+        File.__init__(self)
         files = list(collection_files.find({"absolute_path": ToUnicode(full_path)}))
         if len(files) == 0:
             raise ValueError("File with path "+full_path+" not in db")
@@ -83,8 +88,13 @@ class FileInDatabase(File):
             self._id = files[0]["_id"]
             for x in files[0].keys():
                 self.__dict__[x] = files[0][x]
-
-
+            changes_array = files[0]["changes"]
+            for i in range(1,len(changes_array)+1 ):
+                one_dict = changes_array[-i]["changes"]
+                for x in one_dict:
+                    if x not in self.__dict__ or self.__dict__[x] ==None:
+                        self.__dict__[x] = one_dict[x]
+            
 class FileInFS(File):
     def __init__(self, full_path, version_id):
         File.__init__(self)
@@ -119,8 +129,16 @@ class FileInFS(File):
             for x in self.__dict__.keys():
                 if x in self.bad_items:
                     continue
+                elif x in self.changing_items:
+                    toChange[x] = self.__dict__[x]
                 else:
                     toInsert[x] = self.__dict__[x]
+            if toChange != {}:
+                toInsert["changes"].append(
+                                    {
+                                     "version": self.version,
+                                     "changes": toChange
+                                     })
             collection_files.insert(toInsert, safe = True)
         else:
             differents = (database_file == self)
@@ -132,19 +150,25 @@ class FileInFS(File):
                 collection_files.update(
                                 {"absolute_path": database_file.absolute_path},
                                 {"$push":
-                                    {"versions": self.version},
-                                 "$push":
+                                    {"versions":self.version}
+                                 },
+                                        safe = True)
+                collection_files.update(
+                                {"absolute_path": database_file.absolute_path},
+                                {"$push":
                                     {"changes":
                                         {"version": self.version,
                                          "changes": differents}
                                     }
-                                 })
+                                 },
+                                        safe = True)
             else:
                 collection_files.update(
                                 {"absolute_path": database_file.absolute_path},
                                 {"$push":
                                     {"versions":self.version}
-                                 })
+                                 },
+                                        safe = True)
 
 
 
@@ -208,7 +232,7 @@ class Version:
         
         self.name = raw_input("Enter the name of FV")
         self.date = datetime.datetime.now()
-        self._id = collection_versions.insert(self.__dict__)
+        self._id = collection_versions.insert(self.__dict__, safe = True)
         
     def compareVersion(self, folder = ROOT_SNAPSHOT_FOLDER):
         FolderInFS(folder, self._id).Run()
