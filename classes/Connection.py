@@ -36,3 +36,4 @@ class MyCollection(pm.collection.Collection):
 collection_files = MyCollection(database, COLLECTION_NAME_FILES)
 collection_versions = MyCollection(database, COLLECTION_NAME_VERSIONS)
 collection_differents = MyCollection(database, COLLECTION_NAME_DIFFERENTS)
+collection_test = MyCollection(database, "test")
