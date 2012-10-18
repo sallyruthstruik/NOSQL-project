@@ -2,4 +2,5 @@ eclipse.preferences.version=1
 encoding//classes/Connection.py=cp1251
 encoding//classes/FileSystem.py=cp1251
 encoding//classes/changes.py=cp1251
+encoding//classes/helpers.py=utf-8
 encoding/main.py=cp1251
