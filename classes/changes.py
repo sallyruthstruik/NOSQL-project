@@ -2,8 +2,8 @@
 from classes.FileSystem import *
 import MySQLdb as sql
 
-database = sql.connection("127.0.0.1", "root", "1379468250", "Files")
-cursor = database.cursor()
+#database = sql.connection("127.0.0.1", "root", "1379468250", "Files")
+#cursor = database.cursor()
 
 def getchanges(gen1, gen2):
     """Возвращает изменения между файлами в итераторе gen1(удален/добавлен). 
@@ -58,9 +58,6 @@ def FSgenerator(path = ROOT_SNAPSHOT_FOLDER):
         if getType(cur_path) == "folder":
             for x in FSgenerator(cur_path):
                 yield x
+                
 
-start = time.time()
-for x in ROOT_SNAPSHOT_FOLDER:
-    FSinsert(x)
-end = time.time()
-print end-start
+    
