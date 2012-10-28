@@ -45,8 +45,7 @@ class File:
             "path_len": None,
             "versions":[],
             "changes":[]
-                }
-        
+                }  
     bad_items = (   #Поля, которые НЕ НАДО вносить в базу
             "_id",
             "version"
@@ -95,7 +94,9 @@ class FileInDatabase(File):
                 for x in one_dict:
                     if x not in self.__dict__ or self.__dict__[x] ==None:
                         self.__dict__[x] = one_dict[x]
-            
+                        
+import hashlib as hash
+      
 class FileInFS(File):
     def __init__(self, full_path, version_id):
         File.__init__(self)
@@ -119,6 +120,7 @@ class FileInFS(File):
             else:
                 raise ValueError("path is bad")
             self.path_len = getPathLen(self.absolute_path)
+            
         
     
     def insertIntoDatabase(self):
