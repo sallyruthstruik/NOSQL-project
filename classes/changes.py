@@ -56,8 +56,24 @@ def FSgenerator(path = ROOT_SNAPSHOT_FOLDER):
         cur_path = os.path.join(path, x)
         yield cur_path
         if getType(cur_path) == "folder":
-            for x in FSgenerator(cur_path):
-                yield x
-                
+            try:
+                for x in FSgenerator(cur_path):
+                    yield x
+            except:
+                print "Error in", path
 
+with open("test.txt", "w"):
+    pass
+   
+def getFilesHashes(path = ROOT_SNAPSHOT_FOLDER):
+    for x in FSgenerator(path):
+        file = File(x)
+        with open("test.txt", "a") as fd:
+            print>>fd, file.absolute_path, file.hash
+        
+
+    
+    
+    
+    
     

@@ -4,8 +4,11 @@ import pymongo as pm
 from classes.config import *
 from random import randrange
 
-connection = pm.Connection()
-database = pm.database.Database(connection, DATABASE_NAME)
+try:
+    connection = pm.Connection()
+    database = pm.database.Database(connection, DATABASE_NAME)
+except:
+    print "Запустите сервер MongoDB"
 
 def ToUnicode(string):
     x = string.decode("cp1251")
@@ -32,8 +35,10 @@ class MyCollection(pm.collection.Collection):
             
         
 
-        
-collection_files = MyCollection(database, COLLECTION_NAME_FILES)
-collection_versions = MyCollection(database, COLLECTION_NAME_VERSIONS)
-collection_differents = MyCollection(database, COLLECTION_NAME_DIFFERENTS)
-collection_test = MyCollection(database, "test")
+try:
+    collection_files = MyCollection(database, COLLECTION_NAME_FILES)
+    collection_versions = MyCollection(database, COLLECTION_NAME_VERSIONS)
+    collection_differents = MyCollection(database, COLLECTION_NAME_DIFFERENTS)
+    collection_temp = MyCollection(database, "temp")
+except:
+    pass
