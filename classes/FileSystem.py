@@ -58,7 +58,7 @@ class File:
         """Возвращает хэш от атрибутов файла"""
         if self.type == "file":
             x = hash.md5(str(self.modification_time))
-            return int(x.hexdigest(), 16)
+            return int(x.hexdigest(), 16)%10**HASH_INT_LENGTH
         else:
             return None      
             

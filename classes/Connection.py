@@ -40,5 +40,6 @@ try:
     collection_versions = MyCollection(database, COLLECTION_NAME_VERSIONS)
     collection_differents = MyCollection(database, COLLECTION_NAME_DIFFERENTS)
     collection_temp = MyCollection(database, "temp")
+    collection_test = MyCollection(database, "test")
 except:
     pass

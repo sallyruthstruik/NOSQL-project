@@ -1,6 +1,7 @@
 #-*- coding: cp1251 -*-
 from classes.FileSystem import *
 import MySQLdb as sql
+from classes.helpers import Timer
 
 #database = sql.connection("127.0.0.1", "root", "1379468250", "Files")
 #cursor = database.cursor()
@@ -64,12 +65,43 @@ def FSgenerator(path = ROOT_SNAPSHOT_FOLDER):
 
 with open("test.txt", "w"):
     pass
-   
+
+def getFilesHashesShell(f):
+    def _inside(path = ROOT_SNAPSHOT_FOLDER):
+        collection_temp.drop()
+        collection_temp.ensure_index("path")
+        f(path)
+    return _inside
+
+@getFilesHashesShell
 def getFilesHashes(path = ROOT_SNAPSHOT_FOLDER):
+    """Пишет пары путь-хэш в базу данных"""
     for x in FSgenerator(path):
-        file = File(x)
-        with open("test.txt", "a") as fd:
-            print>>fd, file.absolute_path, file.hash
+        try:
+            file = File(x)
+            collection_temp.insert({"path":file.absolute_path, "hash": file.hash})
+        except:
+            pass
+        
+def getHashedFilesGenerator():
+    """Возвращает пары путь - хэш в порядке, обратном отсортированному"""
+    generator = collection_temp.find().sort("path", -1)
+    hashsumm = 0
+    for x in generator:
+        hash = x["hash"]
+        if hash:
+            hashsumm=(hashsumm + hash)%HASH_INT_LENGTH
+            yield x
+        else:
+            hash = hashsumm
+            hashsumm = 0
+            x["hash"] = hash
+            yield x
+            
+start = time.time()          
+for x in getHashedFilesGenerator():
+    pass
+print "ok", time.time() - start
         
 
     
