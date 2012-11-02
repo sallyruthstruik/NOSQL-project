@@ -31,7 +31,7 @@ class MyCollection(pm.collection.Collection):
                     out[key] = ToUnicode(data[key])
                 else:
                     out[key] = data[key]
-        return pm.collection.Collection.insert(self, out, *a, **k)
+        return pm.collection.Collection.insert(self, out, safe = True, *a, **k)
             
         
 

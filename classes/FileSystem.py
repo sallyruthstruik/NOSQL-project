@@ -52,15 +52,20 @@ class File:
         else:
             raise ValueError("path is bad")
         self.path_len = getPathLen(self.absolute_path)
-        self.hash = self.getHash()
         
     def getHash(self):
         """Возвращает хэш от атрибутов файла"""
         if self.type == "file":
             x = hash.md5(str(self.modification_time))
-            return int(x.hexdigest(), 16)%10**HASH_INT_LENGTH
+            return int(x.hexdigest(), 16)%HASH_INT_LENGTH
         else:
-            return None      
+            return None  
+        
+    def __str__(self):
+        s = ''
+        for x in self.__dict__:
+            s+=x+":"+str(self.__dict__[x])+"\t"   
+        return s
             
         
     

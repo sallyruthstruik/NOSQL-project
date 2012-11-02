@@ -43,6 +43,7 @@ def getchanges(gen1, gen2):
         head1, head2 = skip(__gt__)
 
 def FSinsert(path = ROOT_SNAPSHOT_FOLDER):
+    """Для каждого файла пишет его в базу"""
     for x in os.listdir(path):
         cur_path = os.path.join(path, x)
         collection_test.insert({"path": cur_path})
@@ -53,6 +54,7 @@ def FSinsert(path = ROOT_SNAPSHOT_FOLDER):
                 pass
                 
 def FSgenerator(path = ROOT_SNAPSHOT_FOLDER):
+    """Генератор файлов из файловой системы"""
     for x in os.listdir(path):
         cur_path = os.path.join(path, x)
         yield cur_path
@@ -78,17 +80,14 @@ def getFilesHashes(path = ROOT_SNAPSHOT_FOLDER):
     """Пишет пары путь-хэш в базу данных"""
     for x in FSgenerator(path):
         try:
-            file = File(x)
-            collection_temp.insert({"path":file.absolute_path, "hash": file.hash})
+            collection_temp.insert({"path":x, "hash": File(x).getHash()})
         except:
             pass
         
 def getHashedFilesGenerator():
-    """Возвращает пары путь - хэш в порядке, обратном отсортированному"""
-    if collection_temp.count() == 0:
-        getFilesHashes()
+    """Возвращает словарь путь, хэш в порядке, обратном отсортированному"""
     generator = collection_temp.find().sort("path", -1)
-    hashsumm = 0
+    hashsumm = 0 
     for x in generator:
         hash = x["hash"]
         if hash:
@@ -99,7 +98,27 @@ def getHashedFilesGenerator():
             hashsumm = 0
             x["hash"] = hash
             yield x
-    collection_temp.drop()
+
+class TestFile(File):
+    def __init__(self, path, hash):
+        File.__init__(self, path)
+        self.hash = hash
+        self.path_len = len(self.absolute_path.split("\\"))
+        
+    def insertIntoDatabase(self):
+        self._id = collection_test.insert(self.__dict__)
+
+    
+      
+getFilesHashes()
+for x in getHashedFilesGenerator():
+    TestFile(x["path"], x["hash"]).insertIntoDatabase()
+    
+    
+        
+
+
+    
 
 
 
