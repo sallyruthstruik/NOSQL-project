@@ -85,6 +85,8 @@ def getFilesHashes(path = ROOT_SNAPSHOT_FOLDER):
         
 def getHashedFilesGenerator():
     """Возвращает пары путь - хэш в порядке, обратном отсортированному"""
+    if collection_temp.count() == 0:
+        getFilesHashes()
     generator = collection_temp.find().sort("path", -1)
     hashsumm = 0
     for x in generator:
@@ -97,11 +99,10 @@ def getHashedFilesGenerator():
             hashsumm = 0
             x["hash"] = hash
             yield x
-            
-start = time.time()          
-for x in getHashedFilesGenerator():
-    pass
-print "ok", time.time() - start
+    collection_temp.drop()
+
+
+
         
 
     
